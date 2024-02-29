@@ -1,0 +1,11 @@
+build
+mkfs
+mkrom
+tools/egos-ece4750
+
+*.elf
+*.lst
+*.bin
+*.mcs
+*.img
+
