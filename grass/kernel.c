@@ -23,7 +23,31 @@ void excp_entry(int id) {
     /* Student's code goes here (system call and memory exception). */
 
     /* If id is for system call, handle the system call and return */
-
+    int mcause_val;
+    asm("csrr %0, mcause" : "=r"(mcause_val));
+    if (mcause_val & (1 << 31))
+    { // Cause is interrupt
+        if (id == 7)
+        { // machine timer interrupt
+        }
+    }
+    else
+    {
+        if (id == 5)
+        { // load access fault
+        }
+        if (id == 7)
+        { // store access fault
+        }
+        if (id == 8 || id == 11)
+        { // environment call from u-mode
+          // environment call from m-mode
+            int mepc;
+            asm("csrr %0, mepc" : "=r"(mepc));
+            mepc += 4;
+            asm("csrw mepc, %0" ::"r"(mepc));
+        }
+    }
     /* Otherwise, kill the process if curr_pid is a user application */
 
     /* Student's code ends here. */
