@@ -183,13 +183,19 @@ void mmu_init()
 
     /* Student's code goes here (PMP memory protection). */
 
+    asm("csrw pmpcfg0, %0" : : "r"(0x1b191d0f));
+
     /* Setup PMP TOR region 0x00000000 - 0x20000000 as r/w/x */
+    asm("csrw pmpaddr0, %0" : : "r"(0x20000000 >> 2));
 
     /* Setup PMP NAPOT region 0x20400000 - 0x20800000 as r/-/x */
+    asm("csrw pmpaddr1, %0" : : "r"(0x817ffff));
 
     /* Setup PMP NAPOT region 0x20800000 - 0x20C00000 as r/-/- */
+    asm("csrw pmpaddr2, %0" : : "r"(0x827ffff));
 
     /* Setup PMP NAPOT region 0x80000000 - 0x80004000 as r/w/- */
+    asm("csrw pmpaddr3, %0" : : "r"(0x200007ff));
 
     /* Student's code ends here. */
 

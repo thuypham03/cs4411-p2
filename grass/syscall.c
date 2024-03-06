@@ -17,11 +17,14 @@ static void sys_invoke()
 {
     /* The standard way of system call is using the `ecall` instruction;
      * Switching to ecall is given to students as an exercise */
-    *((int *)0x2000000) = 1;
     asm("ecall");
-    /* This while loop is not needed because we manually update the pc in the
-     * exception handling */
-    // while (sc->type != SYS_UNUSED);
+    /* This while loop is not needed because we handled the exception synchronously
+    In other words, we do not need to poll and wait until the asynchronous interrupt finishes
+     */
+    // *((int *)0x2000000) = 1;
+    // while (sc->type != SYS_UNUSED)
+    // {
+    // };
 }
 
 int sys_send(int receiver, char *msg, int size)
