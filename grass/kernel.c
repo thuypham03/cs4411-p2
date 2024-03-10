@@ -33,7 +33,7 @@ void excp_entry(int id) {
     
     /* Otherwise, kill the process if curr_pid is a user application */
     if (curr_pid >= GPID_USER_START) {
-        INFO("process %d killed by exception %d", curr_pid, id);
+        INFO("process %d terminated with exception %d", curr_pid, id);
         asm("csrw mepc, %0" ::"r"(0x800500C));
         return;
     }
