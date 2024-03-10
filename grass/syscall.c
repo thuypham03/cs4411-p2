@@ -16,8 +16,7 @@ static struct syscall *sc = (struct syscall*)SYSCALL_ARG;
 static void sys_invoke() {
     /* The standard way of system call is using the `ecall` instruction; 
      * Switching to ecall is given to students as an exercise */
-    asm volatile("ecall");
-    
+    asm("ecall");     
     /* This while loop is not needed because we handled the exception synchronously
      * In other words, we do not need to poll and wait until the asynchronous interrupt finishes */
     

@@ -23,18 +23,16 @@ void excp_entry(int id) {
     /* Student's code goes here (system call and memory exception). */
 
     /* If id is for system call, handle the system call and return */
-    if (id == EXCP_ID_ECALL_U || id == EXCP_ID_ECALL_M)
-    { // environment call from u-mode
+    if (id == EXCP_ID_ECALL_U || id == EXCP_ID_ECALL_M) { 
         int mepc;
         asm("csrr %0, mepc" : "=r"(mepc));
-        mepc += 4;
-        asm("csrw mepc, %0" ::"r"(mepc));
+        asm("csrw mepc, %0" ::"r"(mepc + 4));
         handle_syscall();
         return;
     }
+    
     /* Otherwise, kill the process if curr_pid is a user application */
-    if (curr_pid >= GPID_USER_START)
-    {
+    if (curr_pid >= GPID_USER_START) {
         INFO("process %d killed terminated with exception %d", curr_pid, id);
         asm("csrw mepc, %0" ::"r"(0x800500C));
         return;
