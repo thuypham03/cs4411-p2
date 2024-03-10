@@ -11,50 +11,42 @@
 #include "syscall.h"
 #include <string.h>
 
-static struct syscall *sc = (struct syscall *)SYSCALL_ARG;
+static struct syscall *sc = (struct syscall*)SYSCALL_ARG;
 
-static void sys_invoke()
-{
+static void sys_invoke() {
     /* The standard way of system call is using the `ecall` instruction;
      * Switching to ecall is given to students as an exercise */
-    asm("ecall");
+    asm volatile("ecall");
+    
     /* This while loop is not needed because we handled the exception synchronously
-    In other words, we do not need to poll and wait until the asynchronous interrupt finishes
-     */
+     * In other words, we do not need to poll and wait until the asynchronous interrupt finishes */
+    
     // *((int *)0x2000000) = 1;
-    // while (sc->type != SYS_UNUSED)
-    // {
-    // };
+    // while (sc->type != SYS_UNUSED);
 }
 
-int sys_send(int receiver, char *msg, int size)
-{
-    if (size > SYSCALL_MSG_LEN)
-        return -1;
+int sys_send(int receiver, char* msg, int size) {
+    if (size > SYSCALL_MSG_LEN) return -1;
 
     sc->type = SYS_SEND;
     sc->msg.receiver = receiver;
     memcpy(sc->msg.content, msg, size);
     sys_invoke();
-    return sc->retval;
+    return sc->retval;    
 }
 
-int sys_recv(int *sender, char *buf, int size)
-{
-    if (size > SYSCALL_MSG_LEN)
-        return -1;
+int sys_recv(int* sender, char* buf, int size) {
+    if (size > SYSCALL_MSG_LEN) return -1;
 
     sc->type = SYS_RECV;
     sys_invoke();
     memcpy(buf, sc->msg.content, size);
-    if (sender)
-        *sender = sc->msg.sender;
+    if (sender) *sender = sc->msg.sender;
     return sc->retval;
 }
 
-void sys_exit(int status)
-{
+void sys_exit(int status) {
     struct proc_request req;
     req.type = PROC_EXIT;
-    sys_send(GPID_PROCESS, (void *)&req, sizeof(req));
+    sys_send(GPID_PROCESS, (void*)&req, sizeof(req));
 }
