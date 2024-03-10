@@ -121,16 +121,14 @@ static void proc_yield() {
      */
     int mstatus_val;
 
-    if (curr_pid >= GPID_USER_START)
-    {
+    if (curr_pid >= GPID_USER_START) {
         asm("csrr %0, mstatus" : "=r"(mstatus_val));
-        mstatus_val = (mstatus_val & ~((3 << 11)));
+        mstatus_val &= ~(0b11 << 11); // Set MPP bits to U-mode (00)
         asm("csrw mstatus, %0" ::"r"(mstatus_val));
     }
-    if (curr_pid < GPID_SHELL)
-    {
+    if (curr_pid < GPID_SHELL) {
         asm("csrr %0, mstatus" : "=r"(mstatus_val));
-        mstatus_val |= ((3 << 11));
+        mstatus_val |= (0b11 << 11); // Set MPP bits to M-mode (11)
         asm("csrw mstatus, %0" ::"r"(mstatus_val));
     }
     /* Student's code ends here. */
