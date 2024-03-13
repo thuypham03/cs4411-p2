@@ -13,7 +13,11 @@
 #include <string.h>
 
 int main() {
-    memset((void*)FRAME_CACHE_START, 0, FRAME_CACHE_END - FRAME_CACHE_START);
+    // memset((void*)FRAME_CACHE_START, 0, FRAME_CACHE_END - FRAME_CACHE_START);
+    
+    // Potentially unprotected region in Grass layer
+    memset((void*)0x08002800, 0, PAGE_SIZE);
+
     /* If the OS protects memory correctly,
      * this memset should trigger an exception, killing this application;
      * Otherwise, the following message will be printed
