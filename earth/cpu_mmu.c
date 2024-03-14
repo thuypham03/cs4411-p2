@@ -167,12 +167,28 @@ void mmu_init() {
     /* Student's code goes here (PMP memory protection). */
 
     /* Setup PMP TOR region 0x00000000 - 0x20000000 as r/w/x */
+    unsigned long pmp0cfg = 0b01111;
+    unsigned long pmpaddr0 = 0x20000000 >> 2;
 
     /* Setup PMP NAPOT region 0x20400000 - 0x20800000 as r/-/x */
+    unsigned long pmp1cfg = 0b11101;
+    unsigned long pmpaddr1 = (0x20400000 >> 2) | 0x7FFFF; // (2^22B range -> 22-3 = 19 ones)
 
     /* Setup PMP NAPOT region 0x20800000 - 0x20C00000 as r/-/- */
+    unsigned long pmp2cfg = 0b11001;
+    unsigned long pmpaddr2 = (0x20800000 >> 2) | 0x7FFFF; // (2^22B range -> 22-3 = 19 ones)
 
     /* Setup PMP NAPOT region 0x80000000 - 0x80004000 as r/w/- */
+    unsigned long pmp3cfg = 0b11011;
+    unsigned long pmpaddr3 = (0x80000000 >> 2) | 0x7FF; // (2^14B range -> 14-3 = 11 ones)
+
+    /* Update assembly code */
+    unsigned long pmpcfg0 = (pmp3cfg << 24) | (pmp2cfg << 16) | (pmp1cfg << 8) | pmp0cfg;
+    asm("csrw pmpcfg0, %0" :: "r"(pmpcfg0));
+    asm("csrw pmpaddr0, %0" :: "r"(pmpaddr0));
+    asm("csrw pmpaddr1, %0" :: "r"(pmpaddr1));
+    asm("csrw pmpaddr2, %0" :: "r"(pmpaddr2));
+    asm("csrw pmpaddr3, %0" :: "r"(pmpaddr3));
 
     /* Student's code ends here. */
 

@@ -23,8 +23,20 @@ void excp_entry(int id) {
     /* Student's code goes here (system call and memory exception). */
 
     /* If id is for system call, handle the system call and return */
-
+    if (id == EXCP_ID_ECALL_U || id == EXCP_ID_ECALL_M) { 
+        int mepc;
+        asm("csrr %0, mepc" : "=r"(mepc));
+        asm("csrw mepc, %0" ::"r"(mepc + 4));
+        handle_syscall();
+        return;
+    }
+    
     /* Otherwise, kill the process if curr_pid is a user application */
+    if (curr_pid >= GPID_USER_START) {
+        INFO("process %d terminated with exception %d", curr_pid, id);
+        asm("csrw mepc, %0" ::"r"(0x800500C));
+        return;
+    }
 
     /* Student's code ends here. */
     FATAL("excp_entry: kernel got exception %d", id);
@@ -107,7 +119,18 @@ static void proc_yield() {
     /* Modify mstatus.MPP to enter machine or user mode during mret
      * depending on whether curr_pid is a grass server or a user app
      */
+    int mstatus_val;
 
+    if (curr_pid >= GPID_USER_START) {
+        asm("csrr %0, mstatus" : "=r"(mstatus_val));
+        mstatus_val &= ~(0b11 << 11); // Set MPP bits to U-mode (00)
+        asm("csrw mstatus, %0" ::"r"(mstatus_val));
+    }
+    if (curr_pid < GPID_SHELL) {
+        asm("csrr %0, mstatus" : "=r"(mstatus_val));
+        mstatus_val |= (0b11 << 11); // Set MPP bits to M-mode (11)
+        asm("csrw mstatus, %0" ::"r"(mstatus_val));
+    }
     /* Student's code ends here. */
 
     /* Call the entry point for newly created process */
